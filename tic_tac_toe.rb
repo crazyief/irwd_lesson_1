@@ -15,15 +15,21 @@ def say(msg)
   puts "===#{msg}==="
 end
 
-def get_input
+def get_input(b)
   print ">>"
   pick=gets.chomp
   pick="no"+pick
   pick=pick.to_sym
+  unless pick_from_available_position(b).include? pick
+    p "Error please enter a available positon"
+    get_input(b)
+  end
+
   return pick
 end
 
 def paint_board(board_map)
+  system("clear")
   puts "   |   |   "
   puts " #{board_map[:no1]} | #{board_map[:no2]} | #{board_map[:no3]} "
   puts "   |   |   "
@@ -54,7 +60,7 @@ def check_result(board_map)
   line_list=[].push board_map[:no1]+board_map[:no2]+board_map[:no3],
   board_map[:no4]+board_map[:no5]+board_map[:no6],
   board_map[:no7]+board_map[:no8]+board_map[:no9],
-  board_map[:no1]+board_map[:no3]+board_map[:no7],
+  board_map[:no1]+board_map[:no4]+board_map[:no7],
   board_map[:no2]+board_map[:no5]+board_map[:no8],
   board_map[:no3]+board_map[:no6]+board_map[:no9],
   board_map[:no1]+board_map[:no5]+board_map[:no9],
@@ -66,27 +72,25 @@ end
 
 result="nothing"
 
-until result=="Win" or result=="Lose"
+begin
   available_position=pick_from_available_position(board_map)
   paint_board(board_map)
-  say (" Please pick a position ")
-  player_pick=get_input  
 
-  unless available_position.include? player_pick
-    puts "Error Please pick a available position"
-  else
-    edit_board(player_pick, board_map, "O")
-    available_position=pick_from_available_position(board_map)
-    edit_board(available_position.sample, board_map, "X")
-    result=check_result(board_map)
+  say ("Please pick a position ")
+  
+  player_pick=get_input(board_map)  
+  edit_board(player_pick, board_map, "O")
+  available_position=pick_from_available_position(board_map)
+  edit_board(available_position.sample, board_map, "X")
 
-    if result=="Win"
-      paint_board(board_map)
-      p "You Win"
-    elsif result=="Lose"
-      paint_board(board_map)
-      p "You lose"
-    end
+  result=check_result(board_map)
 
+  if result=="Win"
+    paint_board(board_map)
+    p "You Win"
+  elsif result=="Lose"
+    paint_board(board_map)
+    p "You lose"
   end
-end
+
+end until result=="Win" or result=="Lose"
