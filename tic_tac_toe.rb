@@ -1,13 +1,14 @@
+require "pry"
 board_map= {
-  no1: "1",
-  no2: "2",
-  no3: "3",
-  no4: "4",
-  no5: "5",
-  no6: "6",
-  no7: "7",
-  no8: "8",
-  no9: "9",
+  no1: " ",
+  no2: " ",
+  no3: " ",
+  no4: " ",
+  no5: " ",
+  no6: " ",
+  no7: " ",
+  no8: " ",
+  no9: " ",
 }
 
 def say(msg)
@@ -16,9 +17,11 @@ end
 
 def get_input
   print ">>"
-  gets.chomp
+  pick=gets.chomp
+  pick="no"+pick
+  pick=pick.to_sym
+  return pick
 end
-
 
 def paint_board(board_map)
   puts "   |   |   "
@@ -34,21 +37,18 @@ def paint_board(board_map)
   puts "   |   |   "
 end
 
-
 def edit_board(pick, board_map, o_or_x)
-  pick="no#{pick}".to_sym
   board_map[pick] = o_or_x
 end
 
+def pick_from_available_position(board_map)
+  available_pick_list=board_map.each_pair.to_a()
 
-def pick_from_available_position_for_pc(board_map)
-  computer_pick_list=board_map.each_value.to_a
-
-  computer_pick_list= computer_pick_list.select {|value|
-    value!="O" and value!="X"
-  }  
+  available_pick_list=available_pick_list.select {|list|
+    list[1]==" "
+  }
+  available_pick_list.transpose[0..9][0]
 end
-
 
 def check_result(board_map)
   line_list=[].push board_map[:no1]+board_map[:no2]+board_map[:no3],
@@ -64,27 +64,29 @@ def check_result(board_map)
   return result="Lose" if line_list.include? "XXX"
 end
 
-
 result="nothing"
 
 until result=="Win" or result=="Lose"
-  available_position=pick_from_available_position_for_pc(board_map)
+  available_position=pick_from_available_position(board_map)
   paint_board(board_map)
   say (" Please pick a position ")
-  player_pick=get_input
-  
+  player_pick=get_input  
+
   unless available_position.include? player_pick
-    puts "Please pick a available position"
+    puts "Error Please pick a available position"
   else
     edit_board(player_pick, board_map, "O")
-    available_position=pick_from_available_position_for_pc(board_map)
+    available_position=pick_from_available_position(board_map)
     edit_board(available_position.sample, board_map, "X")
     result=check_result(board_map)
 
     if result=="Win"
+      paint_board(board_map)
       p "You Win"
     elsif result=="Lose"
+      paint_board(board_map)
       p "You lose"
     end
+
   end
 end
